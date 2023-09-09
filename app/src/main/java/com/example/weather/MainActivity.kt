@@ -1,100 +1,48 @@
 package com.example.weather
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.weather.databinding.ActivityMainBinding
-import com.yandex.mapkit.Animation
-import com.yandex.mapkit.MapKitFactory
-import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.map.CameraPosition
-import com.yandex.mapkit.mapview.MapView
+import com.example.weather.model.WeatherModel
+import com.example.weather.presenter.Presenter
+import com.example.weather.view.WeatherView
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-
-class MainActivity : AppCompatActivity(R.layout.activity_main) {
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity(R.layout.activity_main), WeatherView {
 
     private val binding: ActivityMainBinding by viewBinding()
-    private val TARGET_LOCATION = Point(42.882004, 74.582748)
 
     @Inject
-    lateinit var api: WeatherApi
+    lateinit var presenter: Presenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        binding.mapview.map.move(
-//            CameraPosition(Point(55.751574, 37.573856), 11.0f, 0.0f, 0.0f),
-//            Animation(Animation.Type.SMOOTH, 0f),
-//            null
-//        )
-
-//        binding.mapview.setOnClickListener {
-//            Toast.makeText(
-//                this,
-//                "${(it as MapView).focusPoint.x} , : , ${it.focusPoint.y}",
-//                Toast.LENGTH_SHORT
-//            ).show()
-//        }
-
-        binding.mapview.getMap().move(
-            CameraPosition(TARGET_LOCATION, 14.0f, 0.0f, 0.0f),
-            Animation(Animation.Type.SMOOTH, 5f),
-            null
-        )
+        presenter.attachView(this)
+        initClickers()
     }
 
-    override fun onStop() {
-        binding.mapview.onStop()
-        MapKitFactory.getInstance().onStop()
-        super.onStop()
+    private fun initClickers() {
+        binding.btnWeather.setOnClickListener {
+            presenter.getWeather()
+        }
     }
 
-    override fun onStart() {
-        super.onStart()
-        MapKitFactory.getInstance().onStart()
-        binding.mapview.onStart()
+    override fun showWeather(weatherModel: WeatherModel) {
+//        Log.e("ololo", "showWeather: $weatherModel")
+        binding.tvTemp.text = "${weatherModel.main?.temp.toString()}°"
+        binding.tvMin.text  = " мин: ${weatherModel.main?.min.toString()}°"
+        binding.tvMax.text = "макс: ${weatherModel.main?.max.toString()}°"
+        binding.tvHumidity.text = "влажность: ${weatherModel.main?.humidity.toString()}"
     }
+
+    override fun showError(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
 }
 
-//package com.example.weatherapp
-//
-//import android.Manifest
-//import android.app.Activity
-//import android.content.pm.PackageManager
-//import android.os.Bundle
-//import androidx.appcompat.app.AppCompatActivity
-//import androidx.core.app.ActivityCompat
-//import by.kirich1409.viewbindingdelegate.viewBinding
-//import com.example.weatherapp.databinding.ActivityMainBinding
-//import com.yandex.mapkit.Animation
-//import com.yandex.mapkit.MapKitFactory
-//import com.yandex.mapkit.geometry.Point
-//import com.yandex.mapkit.map.CameraPosition
-//
-//
-//class MainActivity : AppCompatActivity(R.layout.activity_main) {
-//
-//    private val binding: ActivityMainBinding by viewBinding()
-//    private val TARGET_LOCATION = Point(42.882004, 74.582748)
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//
-//        binding.mapview.getMap().move(
-//            CameraPosition(TARGET_LOCATION, 14.0f, 0.0f, 0.0f),
-//            Animation(Animation.Type.SMOOTH, 5f),
-//            null
-//        )
-//    }
-//    override fun onStop() {
-//        binding.mapview.onStop()
-//        MapKitFactory.getInstance().onStop()
-//        super.onStop()
-//    }
-//
-//    override fun onStart() {
-//        super.onStart()
-//        MapKitFactory.getInstance().onStart()
-//        binding.mapview.onStart()
-//    }
-//}

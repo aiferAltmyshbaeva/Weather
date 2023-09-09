@@ -1,5 +1,6 @@
-package com.example.weather
+package com.example.weather.di
 
+import com.example.weather.model.WeatherApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
